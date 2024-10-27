@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz sur l'IA et les Jeux Vidéo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+            line-height: 1.6;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .question {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-left: 20px;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background-color 0.3s;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .option {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #f5f5f5;
+        }
+        .selected {
+            background-color: #e0e0e0;
+            border-color: #999;
+        }
+        .correct {
+            background-color: #90EE90;
+        }
+        .incorrect {
+            background-color: #FFB6B6;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        #score {
+            font-size: 1.4em;
+            color: #4CAF50;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            display: none;
+        }
+        .progress {
+            margin-bottom: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="quiz">
+            <h1>Quiz sur l'IA et les Jeux Vidéo</h1>
+            <div class="progress">Question <span id="current-number">1</span>/20</div>
+            <div id="current-question" class="question"></div>
+            <div id="options" class="options"></div>
+            <button id="submit-btn" onclick="checkAnswer()">Valider</button>
+            <button id="next-btn" style="display:none" onclick="nextQuestion()">Question suivante</button>
+        </div>
+        <div id="result"></div>
+        <div id="score"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Qu'est-ce que l'intelligence artificielle ?",
+                options: ["Une intelligence naturelle", "Une capacité d'une machine à simuler des fonctions cognitives humaines", "Un type de logiciel informatique sans apprentissage"],
+                correct: 1
+            },
+            {
+                question: "Quel domaine utilise l'IA pour diagnostiquer des maladies comme les tumeurs ?",
+                options: ["Divertissement", "Transport", "Médical"],
+                correct: 2
+            },
+            {
+                question: "Dans quel secteur l'IA est-elle utilisée pour recommander des films et séries ?",
+                options: ["Divertissement", "Médical", "Transport"],
+                correct: 0
+            },
+            {
+                question: "Qu'est-ce que Tim Cook (CEO d'Apple) recommande de faire avec l'IA ?",
+                options: ["L'utiliser de manière à nuire à l'humanité", "Ne pas utiliser l'IA", "L'utiliser pour le bénéfice de l'humanité"],
+                correct: 2
+            },
+            {
+                question: "En quelle année la première conférence qui a défini officiellement l'IA comme domaine d'étude a-t-elle eu lieu ?",
+                options: ["1997", "1956", "2022"],
+                correct: 1
+            },
+            {
+                question: "Qui a proposé le test pour savoir si une machine peut penser ?",
+                options: ["Alan Turing", "Garry Kasparov", "Lee Sedol"],
+                correct: 0
+            },
+            {
+                question: "Qu'est-ce que le Deep Learning dans l'IA ?",
+                options: ["Une forme d'apprentissage supervisé des IA", "Un jeu vidéo des années 90", "Une méthode de raisonnement humain"],
+                correct: 0
+            },
+            {
+                question: "En quelle année Deep Blue a-t-il battu Garry Kasparov aux échecs ?",
+                options: ["1997", "1956", "2020"],
+                correct: 0
+            },
+            {
+                question: "Quel jeu vidéo inclut des comportements basiques d'IA pour la première fois en 1972 ?",
+                options: ["AlphaGo", "Starcraft", "PONG"],
+                correct: 2
+            },
+            {
+                question: "Quels jeux célèbres des années 80 intègrent déjà l'IA pour les personnages non joueurs (PNJ) ?",
+                options: ["Minecraft et Fortnite", "Pac-Man et PONG", "Quake et AlphaGo"],
+                correct: 1
+            },
+            {
+                question: "Quelle est la fonction principale de l'IA dans les jeux vidéo modernes comme Starcraft et Quake ?",
+                options: ["Contrôler les graphismes", "Générer des ennemis contrôlés par IA", "Créer de la musique"],
+                correct: 1
+            },
+            {
+                question: "Quel célèbre jeu d'échecs a été gagné par une IA contre un champion du monde en 1997 ?",
+                options: ["Pac-Man", "Deep Blue", "AlphaGo"],
+                correct: 1
+            },
+            {
+                question: "Quel champion du monde a été battu par l'IA AlphaGo en 2016 ?",
+                options: ["Garry Kasparov", "Lee Sedol", "Alan Turing"],
+                correct: 1
+            },
+            {
+                question: "Que peut faire l'IA dans les jeux vidéo aujourd'hui ?",
+                options: ["Gérer les ennemis avec des tactiques humaines", "Contrôler les émotions des joueurs", "Recommander des jeux sans interaction avec les joueurs"],
+                correct: 0
+            },
+            {
+                question: "Quel est l'objectif principal des IA dans les jeux vidéo de combat comme Starcraft ?",
+                options: ["Améliorer les graphismes", "Créer des ennemis avec des comportements proches des humains", "Écrire des dialogues"],
+                correct: 1
+            },
+            {
+                question: "Quelles sont les applications de l'IA dans les jeux vidéo modernes ?",
+                options: ["Personnalisation dynamique des jeux et création de dialogues", "Création de films", "Amélioration du matériel informatique"],
+                correct: 0
+            },
+            {
+                question: "Quel jeu d'IA est devenu célèbre en 2023 pour avoir démocratisé l'accès aux modèles de langage ?",
+                options: ["Pac-Man", "Quake", "ChatGPT"],
+                correct: 2
+            },
+            {
+                question: "À quelle époque les premiers systèmes experts ont-ils été développés ?",
+                options: ["1970-1980", "1990-2000", "2020-2030"],
+                correct: 0
+            },
+            {
+                question: "Quel est le lien entre l'IA et les dialogues dans les jeux vidéo modernes ?",
+                options: ["Les IA écrivent tous les dialogues", "Les IA sont utilisées pour créer des dialogues dynamiques", "L'IA supprime les dialogues"],
+                correct: 1
+            },
+            {
+                question: "Quel type de quêtes l'IA peut-elle générer dans les jeux vidéo modernes ?",
+                options: ["Quêtes fixes avec toujours les mêmes objectifs", "Quêtes dynamiques adaptées aux choix des joueurs", "Quêtes sans aucun objectif"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        function displayQuestion() {
+            const questionEl = document.getElementById('current-question');
+            const optionsEl = document.getElementById('options');
+            const currentNumberEl = document.getElementById('current-number');
+            const question = questions[currentQuestion];
+
+            currentNumberEl.textContent = currentQuestion + 1;
+            questionEl.textContent = question.question;
+            optionsEl.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectOption(index);
+                optionsEl.appendChild(div);
+            });
+
+            document.getElementById('submit-btn').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('result').textContent = '';
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            options[index].classList.add('selected');
+            selectedOption = index;
+        }
+
+        function checkAnswer() {
+            if (selectedOption === null) {
+                alert('Veuillez sélectionner une réponse');
+                return;
+            }
+
+            const options = document.querySelectorAll('.option');
+            const correct = questions[currentQuestion].correct;
+
+            if (selectedOption === correct) {
+                options[selectedOption].classList.add('correct');
+                document.getElementById('result').textContent = 'Correct ! 👏';
+                score++;
+            } else {
+                options[selectedOption].classList.add('incorrect');
+                options[correct].classList.add('correct');
+                document.getElementById('result').textContent = 'Incorrect ! La bonne réponse est surlignée en vert.';
+            }
+
+            document.getElementById('submit-btn').style.display = 'none';
+            if (currentQuestion < questions.length - 1) {
+                document.getElementById('next-btn').style.display = 'block';
+            } else {
+                showFinalScore();
+            }
+        }
+
+        function nextQuestion() {
+            selectedOption = null;
+            currentQuestion++;
+            displayQuestion();
+        }
+
+        function showFinalScore() {
+            const scoreDiv = document.getElementById('score');
+            const percentage = (score / questions.length) * 100;
+            scoreDiv.style.display = 'block';
+            scoreDiv.innerHTML = `
+                <h2>Quiz terminé !</h2>
+                <p>Votre score : ${score}/${questions.length} (${percentage.toFixed(1)}%)</p>
+                <p>${getScoreMessage(percentage)}</p>
+            `;
+        }
+
+        function getScoreMessage(percentage) {
+            if (percentage >= 90) return "Excellent ! Vous êtes un expert en IA ! 🏆";
+            if (percentage >= 70) return "Très bien ! Vous avez de bonnes connaissances en IA ! 👍";
+            if (percentage >= 50) return "Pas mal ! Continuez d'apprendre sur l'IA ! 📚";
+            return "Continuez d'apprendre, l'IA est un sujet passionnant ! 💪";
+        }
+
+        // Démarrer le quiz
+        displayQuestion();
+    </script>
+</body>
+</html>
