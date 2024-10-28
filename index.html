@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz sur l'IA et les Jeux Vidéo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+            line-height: 1.6;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .question {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background-color 0.3s;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .option {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            line-height: 1.4;
+        }
+        .option:hover {
+            background-color: #f5f5f5;
+            transform: translateX(5px);
+        }
+        .selected {
+            background-color: #e0e0e0;
+            border-color: #999;
+            transform: translateX(5px);
+        }
+        .correct {
+            background-color: #90EE90;
+            border-color: #4CAF50;
+        }
+        .incorrect {
+            background-color: #FFB6B6;
+            border-color: #ff4444;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #score {
+            font-size: 1.4em;
+            color: #4CAF50;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            display: none;
+        }
+        .progress {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 1.1em;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section-title {
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="quiz">
+            <h1>Quiz sur l'IA et les Jeux Vidéo</h1>
+            <div class="progress">Question <span id="current-number">1</span>/20</div>
+            <div id="current-question" class="question"></div>
+            <div id="options" class="options"></div>
+            <button id="submit-btn" onclick="checkAnswer()">Valider</button>
+            <button id="next-btn" style="display:none" onclick="nextQuestion()">Question suivante</button>
+        </div>
+        <div id="result"></div>
+        <div id="score"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "La Poste utilise un modèle d'IA, mais pour quoi ?",
+                options: ["Prédire le prochain facteur en grève", "Lire les adresses sur les lettres", "Peser les colis", "Décider des prochains dessins des timbres"],
+                correct: 1
+            },
+            {
+                question: "Dans quel domaine n'utilise-t-on pas la détection de fraudes par IA ?",
+                options: ["La conduite autonome", "La sécurité informatique", "La finance", "Les jeux en ligne"],
+                correct: 0
+            },
+            {
+                question: "En quelle année a eu lieu la première conférence qui a défini officiellement l'IA comme domaine d'étude ?",
+                options: ["1956", "1997", "2023", "2015"],
+                correct: 0
+            },
+            {
+                question: "Quel est le premier robot à avoir obtenu une nationalité ?",
+                options: ["Alexa", "Sophia", "Tay", "Asimo"],
+                correct: 1
+            },
+            {
+                question: "En 2019, Apple Card (carte de crédit d'Apple aux USA) fait la une des journaux. Pourquoi ?",
+                options: ["Elle permet d'accéder aux comptes d'un autre utilisateur aléatoirement", "Elle accorde un montant de crédit plus faible aux femmes", "Elle refuse de prêter de l'argent aux plus de 50 ans", "Elle accorde plus en cas d'achat de produits Apple"],
+                correct: 1
+            },
+            {
+                question: "Quel modèle n'est pas un générateur d'images ?",
+                options: ["ChatGPT", "Llama", "Midjourney", "Gemini (ex Bard)"],
+                correct: 0
+            },
+            {
+                question: "En 2015, Google Photo a confondu un couple avec...",
+                options: ["Des anges", "Les frères Bogdanov", "Des gorilles", "Des arbres"],
+                correct: 2
+            },
+            {
+                question: "Quelle est l'utilisation de l'IA dans la maintenance prédictive ?",
+                options: ["Indiquer quelles étapes suivre lors d'une panne", "Prédire quand une machine va tomber en panne", "Prédire si la maintenance sera bien faite ou non", "Fournir à la demande le mode d'emploi d'une machine"],
+                correct: 1
+            },
+            {
+                question: "Comment s'appelle le modèle de Microsoft capable d'aider dans les applications Office lancé en 2023 ?",
+                options: ["Midjourney", "Trombone", "DeepBlue", "Copilot"],
+                correct: 3
+            },
+            {
+                question: "En 2021, le modèle de surveillance des posts d'Instagram fait parler de lui. Pourquoi ?",
+                options: ["Il met en avant de la pornographie", "Il censure des photos de chats", "Il censure des photos d'enfants jouant, y voyant de la violence", "Il censure des œuvres d'art contenant de la nudité"],
+                correct: 3
+            },
+            {
+                question: "Dans quel jeu vidéo de 1972 l'IA a-t-elle été utilisée pour la première fois pour des comportements basiques ?",
+                options: ["Starcraft", "Pac-Man", "PONG", "Mario Kart"],
+                correct: 2
+            },
+            {
+                question: "En 2018, la voiture autonome d'Uber a tué une piétonne. Pourquoi ?",
+                options: ["Elle portait une veste noire", "Elle traversait en dehors des clous", "Elle était en trottinette", "Elle a traversé au rouge piéton"],
+                correct: 1
+            },
+            {
+                question: "Quel modèle de langage lancé en 2023 a permis d'améliorer les interactions vocales dans les jeux vidéo ?",
+                options: ["ChatGPT", "Watson", "Deep Blue", "AlphaGo"],
+                correct: 0
+            },
+            {
+                question: "En 2022, un artiste gagne un concours d'art, mais cela fait le buzz. Pourquoi ?",
+                options: ["L'artiste est en fait un robot", "Le jury était une IA", "L'œuvre montre l'intérieur d'un réseau de neurones", "L'œuvre est générée par Midjourney"],
+                correct: 3
+            },
+            {
+                question: "Quel est le modèle d'IA célèbre pour avoir battu le champion du monde d'échecs Garry Kasparov en 1997 ?",
+                options: ["Deep Blue", "AlphaGo", "Watson", "GPT-3"],
+                correct: 0
+            },
+            {
+                question: "Quel modèle d'IA a battu le champion du monde de Go, Lee Sedol, en 2016 ?",
+                options: ["Deep Blue", "AlphaGo", "TuringBot", "Midjourney"],
+                correct: 1
+            },
+            {
+                question: "Quelle fonctionnalité des téléphones n'utilise pas l'IA ?",
+                options: ["Reconnaissance du numéro", "Suggestion du mot suivant", "Correction automatique (T9)", "Adaptation de la luminosité"],
+                correct: 3
+            },
+            {
+                question: "Que permet l'IA dans des jeux comme Starcraft ?",
+                options: ["Améliorer les graphismes", "Contrôler les personnages de manière réaliste", "Générer des ennemis contrôlés par IA", "Ajouter des effets sonores"],
+                correct: 2
+            },
+            {
+                question: "Quel type de modèle est utilisé pour créer des dialogues dynamiques dans les jeux vidéo modernes ?",
+                options: ["Modèles de vision par ordinateur", "Modèles de langage", "Modèles d'apprentissage par renforcement", "Modèles de maintenance prédictive"],
+                correct: 1
+            },
+            {
+                question: "Sur Netflix, quelle fonctionnalité n'utilise pas de l'IA ?",
+                options: ["Sauvegarde des comptes", "Recommandation de vidéos", "Adaptation de la qualité", "Fonction recherche"],
+                correct: 0
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        function displayQuestion() {
+            const questionEl = document.getElementById('current-question');
+            const optionsEl = document.getElementById('options');
+            const currentNumberEl = document.getElementById('current-number');
+            const question = questions[currentQuestion];
+
+            currentNumberEl.textContent = currentQuestion + 1;
+            questionEl.textContent = question.question;
+            optionsEl.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectOption(index);
+                optionsEl.appendChild(div);
+            });
+
+            document.getElementById('submit-btn').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('result').textContent = '';
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            options[index].classList.add('selected');
+            selectedOption = index;
+        }
+
+        function checkAnswer() {
+            if (selectedOption === null) {
+                alert('Veuillez sélectionner une réponse');
+                return;
+            }
+
+            const options = document.querySelectorAll('.option');
+            const correct = questions[currentQuestion].correct;
+
+            if (selectedOption === correct) {
+                options[selectedOption].classList.add('correct');
+                document.getElementById('result').textContent = 'Correct ! 👏';
+                document.getElementById('result').style.backgroundColor = '#90EE90';
+                score++;
+            } else {
+                options[selectedOption].classList.add('incorrect');
+                options[correct].classList.add('correct');
+                document.getElementById('result').textContent = 'Incorrect ! La bonne réponse est surlignée en vert.';
+                document.getElementById('result').style.backgroundColor = '#FFB6B6';
+            }
+
+            document.getElementById('submit-btn').style.display = 'none';
+            if (currentQuestion < questions.length - 1) {
+                document.getElementById('next-btn').style.display = 'block';
+            } else {
+                showFinalScore();
+            }
+        }
+
+        function nextQuestion() {
+            selectedOption = null;
+            currentQuestion++;
+            displayQuestion();
+        }
+
+        function showFinalScore() {
+            const scoreDiv = document.getElementById('score');
+            const percentage = (score / questions.length) * 100;
+            scoreDiv.style.display = 'block';
+            scoreDiv.innerHTML = `
+                <h2>Quiz terminé !</h2>
+                <p>Votre score : ${score}/${questions.length} (${percentage.toFixed(1)}%)</p>
+                <p>${getScoreMessage(percentage)}</p>
+            `;
+        }
+
+        function getScoreMessage(percentage) {
+            if (percentage >= 90) return "Excellent ! Vous êtes un expert en IA ! 🏆";
+            if (percentage >= 70) return "Très bien ! Vous avez de bonnes connaissances en IA ! 👍";
+            if (percentage >= 50) return "Pas mal ! Continuez d'apprendre sur l'IA ! 📚";
+            return "Continuez d'apprendre, l'IA est un sujet passionnant ! 💪";
+        }
+
+        // Démarrer le quiz
+        displayQuestion();
+    </script>
+</body>
+</html>
